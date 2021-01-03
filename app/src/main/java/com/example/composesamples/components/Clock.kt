@@ -52,9 +52,10 @@ fun Clock() {
             .fillMaxWidth(), onDraw = {
             val radius = min(size.width / 2, size.height / 2) - 50
 
+            //the shape's center
             val origin = Offset(size.width / 2, size.height / 2)
-            val timeLabels = 1..12
 
+            val timeLabels = 1..12
 
             val paint = TextPaint().apply {
                 isAntiAlias = true
@@ -67,22 +68,23 @@ fun Clock() {
             //draw letters
             val rect = Rect()
             for (i in timeLabels) {
-                val tmp: String = i.toString()
-                paint.getTextBounds(tmp, 0, tmp.length, rect)
+                val label = i.toString()
 
-                val ang = Math.toRadians((i - 3) * 30.0).toFloat()
+                paint.getTextBounds(label, 0, label.length, rect)
 
-                val x = (size.width / 2 + cos(ang) * (radius - 45) - rect.width() / 2)
-                val y = (size.height / 2 + sin(ang) * (radius - 45) + rect.height() / 2)
+                val angle = Math.toRadians((i - 3) * 30.0).toFloat()
 
-                drawContext.canvas.nativeCanvas.drawText(tmp, x, y, paint)
+                val x = (size.width / 2 + cos(angle) * (radius - 45) - rect.width() / 2)
+                val y = (size.height / 2 + sin(angle) * (radius - 45) + rect.height() / 2)
+
+                drawContext.canvas.nativeCanvas.drawText(label, x, y, paint)
             }
 
             //draw Hour tick
-            drawTick(true, radius = radius, center = origin)
+            drawTick(isHour = true, radius = radius, center = origin)
 
             //draw minute tick
-            drawTick(false, radius = radius, center = origin)
+            drawTick(isHour = false, radius = radius, center = origin)
 
 
             val millis = (time.get(ChronoField.MILLI_OF_SECOND)) / 1000f
