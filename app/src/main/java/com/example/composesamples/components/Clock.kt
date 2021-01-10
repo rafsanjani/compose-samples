@@ -5,8 +5,6 @@ import android.graphics.Typeface
 import android.text.TextPaint
 import androidx.compose.animation.animatedFloat
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -39,11 +37,10 @@ fun Clock() {
 
     animatedProgress.animateTo(
         targetValue = 12f,
-        anim = infiniteRepeatable(
-            animation = tween(durationMillis = 10_000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+        anim = tween(durationMillis = 10_000, easing = LinearEasing),
+
         )
-    )
+
 
     val time = LocalTime.now()
     Box(modifier = Modifier.wrapContentSize(), contentAlignment = Alignment.Center) {
