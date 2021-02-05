@@ -22,8 +22,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.example.composesamples.components.Clock
-import com.example.composesamples.components.PaginatedNews
 import com.example.composesamples.components.PassCode
+import com.example.composesamples.components.StickyHeaders
 import com.example.composesamples.styles.ComposeSamplesTheme
 import dev.chrisbanes.accompanist.insets.ProvideWindowInsets
 import dev.chrisbanes.accompanist.insets.systemBarsPadding
@@ -58,7 +58,7 @@ fun App() {
                     )
                 }
                 composable("passcode") { PassCode() }
-                composable("news") { PaginatedNews() }
+                composable("news") { StickyHeaders() }
             }
         }
     }

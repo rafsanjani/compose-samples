@@ -51,7 +51,7 @@ private const val TAG = "PaginatedNews"
 
 @ExperimentalFoundationApi
 @Composable
-fun PaginatedNews() {
+fun StickyHeaders() {
     val moshi = Moshi.Builder()
         .add(DateAdapter())
         .build()

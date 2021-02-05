@@ -50,6 +50,6 @@ fun PassCodePreview() {
 @Composable
 fun NewsListPreview() {
     ProvideWindowInsets {
-        PaginatedNews()
+        StickyHeaders()
     }
 }
