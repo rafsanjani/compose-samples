@@ -1,5 +1,6 @@
 package com.example.composesamples.components
 
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
@@ -8,7 +9,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,17 +21,14 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.composesamples.R
-import com.example.composesamples.R.drawable.ic_backspace
-import com.example.composesamples.ui.typography
+import com.example.composesamples.styles.PasscodeTypography
 
 //special keys
 
@@ -60,15 +59,57 @@ fun PassCode(
     var inputAttempts by remember { mutableStateOf(0) }
 
 
-    val transition = transition(
-        onStateChangeFinished = {
-            passCodeState = PassCodeState.Undefined
-            typedPasscode = ""
-        },
-        definition = definition,
-        toState = passCodeState
-    )
+    val transition: Transition<PassCodeState> =
+        updateTransition(targetState = passCodeState)
 
+    if (transition.currentState == transition.targetState && transition.targetState == PassCodeState.Wrong) {
+        passCodeState = PassCodeState.Undefined
+    }
+
+    if (transition.currentState == PassCodeState.Wrong) {
+        typedPasscode = ""
+    }
+
+    val circleColor by transition.animateColor(
+        transitionSpec = {
+            tween(1000, easing = LinearEasing)
+        }
+    ) { state ->
+        when (state) {
+            PassCodeState.Undefined -> {
+                circleFillColor
+            }
+            PassCodeState.Wrong -> {
+                Color.Red
+            }
+            PassCodeState.Accepted -> {
+                Color.Green
+            }
+        }
+    }
+
+    val translation by transition.animateFloat(
+        transitionSpec = {
+            when {
+                PassCodeState.Wrong isTransitioningTo PassCodeState.Undefined ->
+                    tween(100, easing = LinearEasing)
+                else ->
+                    repeatable(
+                        repeatMode = RepeatMode.Reverse,
+                        iterations = 10,
+                        animation = tween(durationMillis = 100, easing = LinearEasing)
+                    )
+            }
+        }
+    ) { state ->
+        when (state) {
+            PassCodeState.Undefined -> 0f
+            PassCodeState.Wrong -> {
+                30f
+            }
+            PassCodeState.Accepted -> 0f
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -78,6 +119,7 @@ fun PassCode(
 
         backgroundImage?.let {
             Image(
+                contentDescription = null,
                 bitmap = backgroundImage,
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier.fillMaxSize()
@@ -94,7 +136,7 @@ fun PassCode(
                     .fillMaxWidth()
                     .align(Alignment.End),
                 text = headerText,
-                style = typography.h5
+                style = PasscodeTypography.h5
             )
 
 
@@ -103,14 +145,14 @@ fun PassCode(
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .graphicsLayer {
-                        translationX = transition[translation]
+                        translationX = translation
                     }
                     .padding(top = 50.dp)
                     .fillMaxWidth()
             ) {
                 repeat(correctPasscode.length) {
                     PassCodeCircle(
-                        circleFillColor = circleFillColor,
+                        circleFillColor = circleColor,
                         circlePadding = circlePadding,
                         borderColor = borderColor,
                         borderStrokeWidth = borderStrokeWidth,
@@ -121,14 +163,15 @@ fun PassCode(
             }
 
 
-            if (inputAttempts > 0) {
+            if (inputAttempts > 0 && typedPasscode.length == correctPasscode.length) {
                 FeedbackText(
                     message = "Incorrect password entered!",
                     color = Color.Red
                 )
             }
+            Log.d(TAG, "PassCode: $passCodeState")
 
-            if (passCodeState == PassCodeState.Accepted) {
+            if (passCodeState == PassCodeState.Accepted && typedPasscode.length == correctPasscode.length) {
                 FeedbackText(message = "Passcode Accepted!", color = Color.DarkGray)
             }
 
@@ -259,7 +302,6 @@ fun NumericalKey(position: Int, modifier: Modifier, onClick: (number: Int) -> Un
         modifier = modifier
             .preferredHeight(70.dp)
             .clickable(
-                indication = rememberRipple(color = Color.Cyan),
                 onClick = {
                     onClick(position)
                 })
@@ -269,7 +311,10 @@ fun NumericalKey(position: Int, modifier: Modifier, onClick: (number: Int) -> Un
     ) {
         //delete key
         if (position == 12) {
-            Icon(imageVector = vectorResource(id = ic_backspace))
+            Icon(
+                imageVector = Icons.Default.Backspace,
+                contentDescription = null
+            )
         }
 
         if (position != SPECIAL_KEY_EMPTY && position != SPECIAL_KEY_BACKSPACE)
@@ -281,48 +326,8 @@ fun NumericalKey(position: Int, modifier: Modifier, onClick: (number: Int) -> Un
     }
 }
 
-
 private enum class PassCodeState {
     Undefined,
     Wrong,
     Accepted
-}
-
-private val translation = FloatPropKey(label = "dotsTranslation")
-
-private val definition: TransitionDefinition<PassCodeState> =
-    transitionDefinition {
-        state(PassCodeState.Undefined) {
-            this[translation] = 0f
-        }
-
-        state(PassCodeState.Wrong) {
-            this[translation] = 30f
-        }
-
-        transition(PassCodeState.Undefined to PassCodeState.Wrong) {
-            translation using repeatable(
-                repeatMode = RepeatMode.Reverse,
-                iterations = 10,
-                animation = tween(
-                    easing = LinearEasing,
-                    durationMillis = 70
-                )
-            )
-        }
-
-        transition(PassCodeState.Wrong to PassCodeState.Undefined) {
-            translation using tween(
-                easing = LinearEasing,
-                durationMillis = 100
-            )
-        }
-    }
-
-
-@ExperimentalAnimationApi
-@Composable
-@Preview
-fun PasscodePreview() {
-    PassCode()
 }

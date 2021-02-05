@@ -3,16 +3,20 @@ package com.example.composesamples.components
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.text.TextPaint
-import androidx.compose.animation.animatedFloat
-import androidx.compose.animation.core.LinearEasing
+import android.util.Log
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -22,6 +26,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -31,107 +36,114 @@ import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
+
 @Composable
 fun Clock() {
-    val animatedProgress = animatedFloat(initVal = 0f)
+    val transition = rememberInfiniteTransition()
 
-    animatedProgress.animateTo(
-        targetValue = 12f,
-        anim = tween(durationMillis = 10_000, easing = LinearEasing),
-
+    val animatedValue by transition.animateFloat(
+        initialValue = 0f, targetValue = 1f, animationSpec =
+        infiniteRepeatable(
+            animation = tween(1000)
         )
+    )
 
+    //Recomposition doesn't occur if we don't actually use the animated value wi the composition
+    Log.d("Debug", "Clock: $animatedValue")
 
     val time = LocalTime.now()
     Box(modifier = Modifier.wrapContentSize(), contentAlignment = Alignment.Center) {
-        Canvas(modifier = Modifier
-            .preferredHeight(350.dp)
-            .fillMaxWidth(), onDraw = {
-            val radius = min(size.width / 2, size.height / 2) - 50
+        val drawColor = MaterialTheme.colors.onSurface
 
-            //the shape's center
-            val origin = Offset(size.width / 2, size.height / 2)
+        Canvas(
+            modifier = Modifier
+                .preferredHeight(350.dp)
+                .fillMaxWidth(), onDraw = {
+                val radius = min(size.width / 2, size.height / 2) - 50
 
-            val timeLabels = 1..12
+                //the shape's center
+                val origin = Offset(size.width / 2, size.height / 2)
 
-            val paint = TextPaint().apply {
-                isAntiAlias = true
-                textSize = 35f
-                typeface = Typeface.DEFAULT_BOLD
-                this.color = android.graphics.Color.BLACK
-            }
+                val timeLabels = 1..12
 
-
-            //draw letters
-            val rect = Rect()
-            for (i in timeLabels) {
-                val label = i.toString()
-
-                paint.getTextBounds(label, 0, label.length, rect)
-
-                val angle = Math.toRadians((i - 3) * 30.0).toFloat()
-
-                val x = (size.width / 2 + cos(angle) * (radius - 45) - rect.width() / 2)
-                val y = (size.height / 2 + sin(angle) * (radius - 45) + rect.height() / 2)
-
-                drawContext.canvas.nativeCanvas.drawText(label, x, y, paint)
-            }
-
-            //draw Hour tick
-            drawTick(isHour = true, radius = radius, center = origin)
-
-            //draw minute tick
-            drawTick(isHour = false, radius = radius, center = origin)
+                val paint = TextPaint().apply {
+                    isAntiAlias = true
+                    textSize = 35f
+                    typeface = Typeface.DEFAULT_BOLD
+                    this.color = drawColor.toArgb()
+                }
 
 
-            val millis = (time.get(ChronoField.MILLI_OF_SECOND)) / 1000f
+                //draw letters
+                val rect = Rect()
+                for (i in timeLabels) {
+                    val label = i.toString()
 
-            //draw second hand
-            drawHand(
-                radius = radius,
-                value = millis + time.second,
-                from = origin,
-                distFromRadius = 50,
-                color = Color.Red,
-                strokeWidth = 2f
-            )
+                    paint.getTextBounds(label, 0, label.length, rect)
 
-            //draw minute hand
-            drawHand(
-                radius = radius,
-                value = time.minute.toFloat(),
-                from = origin,
-                distFromRadius = 50,
-                color = Color.Black,
-                strokeWidth = 5f
-            )
+                    val angle = Math.toRadians((i - 3) * 30.0).toFloat()
 
-            //draw hour hand
-            drawHand(
-                isHour = true,
-                radius = radius,
-                value = time.hour.toFloat(),
-                from = origin,
-                distFromRadius = 100,
-                color = Color.Black,
-                strokeWidth = 5f
-            )
+                    val x = (size.width / 2 + cos(angle) * (radius - 45) - rect.width() / 2)
+                    val y = (size.height / 2 + sin(angle) * (radius - 45) + rect.height() / 2)
 
-            //draw smaller inner circle
-            drawCircle(
-                center = origin,
-                color = Color.Black,
-                radius = 10f
-            )
+                    drawContext.canvas.nativeCanvas.drawText(label, x, y, paint)
+                }
 
-            //draw bigger outer circle
-            drawCircle(
-                center = origin,
-                color = Color.Black,
-                radius = radius,
-                style = Stroke(width = 4f)
-            )
-        })
+                //draw Hour tick
+                drawTick(isHour = true, radius = radius, center = origin, color = drawColor)
+
+                //draw minute tick
+                drawTick(isHour = false, radius = radius, center = origin, color = drawColor)
+
+
+                val millis = (time.get(ChronoField.MILLI_OF_SECOND)) / 1000f
+
+                //draw second hand
+                drawHand(
+                    radius = radius,
+                    value = millis + time.second,
+                    from = origin,
+                    distFromRadius = 50,
+                    color = Color.Red,
+                    strokeWidth = 2f
+                )
+
+                //draw minute hand
+                drawHand(
+                    radius = radius,
+                    value = time.minute.toFloat(),
+                    from = origin,
+                    distFromRadius = 50,
+                    color = drawColor,
+                    strokeWidth = 5f
+                )
+
+                //draw hour hand
+                drawHand(
+                    isHour = true,
+                    radius = radius,
+                    value = time.hour.toFloat(),
+                    from = origin,
+                    distFromRadius = 100,
+                    color = drawColor,
+                    strokeWidth = 5f
+                )
+
+                //draw smaller inner circle
+                drawCircle(
+                    center = origin,
+                    color = drawColor,
+                    radius = 10f
+                )
+
+                //draw bigger outer circle
+                drawCircle(
+                    center = origin,
+                    color = drawColor,
+                    radius = radius,
+                    style = Stroke(width = 4f)
+                )
+            })
 
         val timeFormatter = DateTimeFormatter.ofPattern("hh:mm:ss a")
 
@@ -139,7 +151,7 @@ fun Clock() {
             modifier = Modifier
                 .padding(top = 80.dp)
                 .border(
-                    border = BorderStroke(width = 1.dp, color = Color.Black),
+                    border = BorderStroke(width = 1.dp, color = drawColor),
                     shape = RoundedCornerShape(5.dp)
                 )
                 .padding(horizontal = 5.dp)
@@ -151,7 +163,7 @@ fun Clock() {
 
 }
 
-fun DrawScope.drawTick(isHour: Boolean, radius: Float, center: Offset) {
+fun DrawScope.drawTick(isHour: Boolean, radius: Float, center: Offset, color: Color) {
     val ticks = if (isHour) 1..12 else 1..60
 
     for (i in ticks) {
@@ -172,7 +184,7 @@ fun DrawScope.drawTick(isHour: Boolean, radius: Float, center: Offset) {
                 start = pos,
                 end = pos - Offset(x = 0f, y = tickLength),
                 strokeWidth = if (isHour) 5f else 3f,
-                color = Color.Black
+                color = color
             )
         }
     }

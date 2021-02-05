@@ -1,15 +1,25 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
 }
+apply plugin: 'kotlin-android'
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('/home/rafsanjani/Desktop/MASTER_KEY.jks')
+            storePassword 'NowyouseeMe1990'
+            keyAlias 'rafsanjani_android'
+            keyPassword 'NowyouseeMe1990'
+        }
+    }
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.example.composesamples"
-        minSdkVersion 26
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -20,23 +30,27 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            debuggable false
+            signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
     }
     kotlinOptions {
         jvmTarget = '1.8'
         useIR = true
     }
+
     buildFeatures {
         compose true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
-        kotlinCompilerVersion '1.4.21'
     }
 }
 
@@ -45,12 +59,26 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.navigation:navigation-compose:1.0.0-alpha06"
     implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation "androidx.compose.ui:ui-tooling:$compose_version"
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-rc01'
     testImplementation 'junit:junit:4.13.1'
     implementation 'androidx.activity:activity-ktx:1.2.0-rc01'
-    implementation group: 'dev.chrisbanes.accompanist', name: 'accompanist-coil', version: '0.3.3.1'
+    implementation group: 'dev.chrisbanes.accompanist', name: 'accompanist-coil', version: '0.5.0'
+    implementation group: 'dev.chrisbanes.accompanist', name: 'accompanist-insets', version: '0.5.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
+    kapt("com.squareup.moshi:moshi-kotlin-codegen:1.11.0")
+    implementation("com.squareup.moshi:moshi:1.11.0")
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation "androidx.core:core-ktx:1.3.2"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
+}
+repositories {
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+    mavenCentral()
 }
