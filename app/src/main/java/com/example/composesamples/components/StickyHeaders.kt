@@ -20,24 +20,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.MinutesPerHour
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.composesamples.R
 import com.example.composesamples.styles.NewsTypography
 import com.example.composesamples.styles.cardBackground
-import com.example.composesamples.styles.separatorBackground
 import com.squareup.moshi.*
 import dev.chrisbanes.accompanist.coil.CoilImage
 import dev.chrisbanes.accompanist.insets.ProvideWindowInsets
 import dev.chrisbanes.accompanist.insets.systemBarsPadding
-import kotlinx.coroutines.delay
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
@@ -67,9 +64,6 @@ fun StickyHeaders() {
     LaunchedEffect(true) {
         try {
             val list = newsService.listNews()
-
-            //delay to see loading animation
-            delay(2000)
 
             //Sometimes duplicate news entries are loaded
             news.addAll(
@@ -138,7 +132,6 @@ fun NewsList(news: List<News>) {
         aggregatedNews.forEach { (publishedDate, newsEntries) ->
 
             stickyHeader {
-                MinutesPerHour
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -180,7 +173,7 @@ fun NewsCard(newsItem: News) {
                 loading = {
                     Box {
                         Image(
-                            bitmap = imageResource(id = R.drawable.bg_passcode),
+                            painter = painterResource(id = R.drawable.bg_passcode),
                             contentDescription = "",
                             contentScale = ContentScale.FillBounds
                         )
@@ -223,12 +216,15 @@ fun NewsSeparator(date: String, modifier: Modifier = Modifier) {
             .background(
                 shape = CircleShape,
                 alpha = 0.4f,
-                brush = SolidColor(MaterialTheme.colors.separatorBackground)
+                brush = SolidColor(MaterialTheme.colors.onSurface)
             )
             .padding(horizontal = if (date == "Today") 40.dp else 15.dp, vertical = 5.dp)
     ) {
         Text(
-            style = MaterialTheme.typography.caption.copy(fontWeight = FontWeight.ExtraBold),
+            style = MaterialTheme.typography.caption.copy(
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colors.surface
+            ),
             text = date
         )
     }
