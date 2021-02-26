@@ -48,7 +48,8 @@ fun Clock() {
         )
     )
 
-    //Recomposition doesn't occur if we don't actually use the animated value wi the composition
+    //Recomposition doesn't occur if we don't actually use the animated value within the composition
+    //but what we really need is just an infinite loop
     Log.d("Debug", "Clock: $animatedValue")
 
     val time = LocalTime.now()
@@ -57,7 +58,7 @@ fun Clock() {
 
         Canvas(
             modifier = Modifier
-                .preferredHeight(350.dp)
+                .requiredHeight(350.dp)
                 .fillMaxWidth(), onDraw = {
                 val radius = min(size.width / 2, size.height / 2) - 50
 
@@ -199,6 +200,7 @@ fun DrawScope.drawHand(
     color: Color,
     strokeWidth: Float
 ) {
+    //divide the circle into twelve segments for an hour hand and 60 for a minute.
     val divider = if (isHour) 12 else 60
     val angle = value / divider * 360
     val handRadius = radius - distFromRadius

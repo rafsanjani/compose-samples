@@ -1,33 +1,32 @@
 package com.example.composesamples.components
 
-import android.util.Log
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.paging.*
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemsIndexed
 import com.example.composesamples.R
 import com.example.composesamples.styles.NewsTypography
 import com.example.composesamples.styles.cardBackground
@@ -35,6 +34,7 @@ import com.squareup.moshi.*
 import dev.chrisbanes.accompanist.coil.CoilImage
 import dev.chrisbanes.accompanist.insets.ProvideWindowInsets
 import dev.chrisbanes.accompanist.insets.systemBarsPadding
+import kotlinx.coroutines.flow.Flow
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
@@ -49,33 +49,34 @@ private const val TAG = "PaginatedNews"
 @ExperimentalFoundationApi
 @Composable
 fun StickyHeaders() {
-    val moshi = Moshi.Builder()
-        .add(DateAdapter())
-        .build()
+//    val moshi = Moshi.Builder()
+//        .add(DateAdapter())
+//        .build()
+//
+//    val newsService = Retrofit.Builder()
+//        .baseUrl("https://newsapi.org/")
+//        .addConverterFactory(MoshiConverterFactory.create(moshi))
+//        .build()
+//        .create(NewsService::class.java)
+//
+//    val news = mutableStateListOf<News>()
+    val items = getPhotoPagination().collectAsLazyPagingItems()
 
-    val newsService = Retrofit.Builder()
-        .baseUrl("https://newsapi.org/")
-        .addConverterFactory(MoshiConverterFactory.create(moshi))
-        .build()
-        .create(NewsService::class.java)
-
-    val news = mutableStateListOf<News>()
-
-    LaunchedEffect(true) {
-        try {
-            val list = newsService.listNews()
-
-            //Sometimes duplicate news entries are loaded
-            news.addAll(
-                list
-                    .articles
-                    .toSet()
-            )
-            Log.d(TAG, "PaginatedNews: Loaded ${list.articles.size} items")
-        } catch (t: Throwable) {
-            Log.e(TAG, "PaginatedNews: ", t)
-        }
-    }
+//    LaunchedEffect(true) {
+//        try {
+//            val list = newsService.listNews()
+//
+//            //Sometimes duplicate news entries are loaded
+//            news.addAll(
+//                list
+//                    .articles
+//                    .toSet()
+//            )
+//            Log.d(TAG, "PaginatedNews: Loaded ${list.articles.size} items")
+//        } catch (t: Throwable) {
+//            Log.e(TAG, "PaginatedNews: ", t)
+//        }
+//    }
 
     val loadingTransition = rememberInfiniteTransition()
 
@@ -86,70 +87,110 @@ fun StickyHeaders() {
                 .systemBarsPadding()
                 .fillMaxSize(),
         ) {
-            if (news.isNotEmpty()) {
-                NewsList(news = news)
-            } else {
-                val loadingAlpha by loadingTransition.animateFloat(
-                    initialValue = 0.2f, targetValue = 1f, animationSpec =
-                    infiniteRepeatable(
-                        repeatMode = RepeatMode.Reverse,
-                        animation = tween(1000)
-                    )
-                )
-
-                Text(
-                    text = "Loading...",
-                    style = TextStyle(
-                        fontSize = 32.sp,
-                        fontStyle = FontStyle.Italic,
-                        fontWeight = FontWeight.ExtraBold
-                    ),
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .alpha(loadingAlpha)
-                )
-            }
+//            if (news.isNotEmpty()) {
+            NewsList(news = items)
+//            } else {
+//                val loadingAlpha by loadingTransition.animateFloat(
+//                    initialValue = 0.2f, targetValue = 1f, animationSpec =
+//                    infiniteRepeatable(
+//                        repeatMode = RepeatMode.Reverse,
+//                        animation = tween(1000)
+//                    )
+//                )
+//
+//                Text(
+//                    text = "Loading...",
+//                    style = TextStyle(
+//                        fontSize = 32.sp,
+//                        fontStyle = FontStyle.Italic,
+//                        fontWeight = FontWeight.ExtraBold
+//                    ),
+//                    modifier = Modifier
+//                        .align(Alignment.Center)
+//                        .alpha(loadingAlpha)
+//                )
+//            }
         }
     }
 }
 
+fun getPhotoPagination(): Flow<PagingData<News>> {
+    val moshi = Moshi.Builder()
+        .add(DateAdapter())
+        .build()
+
+    val newsService = Retrofit.Builder()
+        .baseUrl("https://newsapi.org/")
+        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .build()
+        .create(NewsService::class.java)
+
+    return Pager(PagingConfig(pageSize = 10)) {
+        NewsDataSource(newsService)
+    }.flow
+}
+
 @ExperimentalFoundationApi
 @Composable
-fun NewsList(news: List<News>) {
+fun NewsList(news: LazyPagingItems<News>) {
     val dateFormatter = remember { DateTimeFormatter.ofPattern("MMMM dd, yyyy") }
 
-    val aggregatedNews = news
-        .sortedByDescending {
-            it.publishedAt
-        }
-        .groupBy {
-            it.publishedAt
-        }
+//    val aggregatedNews = news
+//        .snapshot()
+//        .sortedByDescending {
+//            it?.publishedAt
+//        }
+//        .groupBy {
+//            it?.publishedAt
+//        }
+
     LazyColumn(
         contentPadding = PaddingValues(5.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-        aggregatedNews.forEach { (publishedDate, newsEntries) ->
 
-            stickyHeader {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    NewsSeparator(
-                        date = if (publishedDate == LocalDate.now()) "Today" else dateFormatter.format(
-                            publishedDate
-                        ),
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+        itemsIndexed(news) { _, item ->
+            NewsCard(newsItem = item!!)
+        }
+
+        news.apply {
+            when {
+                loadState.refresh is LoadState.Loading -> item {
+                    Text(text = "Loading")
+                }
+                loadState.append is LoadState.Loading -> {
+                    item {
+                        CircularProgressIndicator()
+                    }
                 }
             }
-
-            items(newsEntries) {
-                NewsCard(newsItem = it)
-            }
         }
+//        aggregatedNews.forEach { (publishedDate, newsEntries) ->
+//
+//            stickyHeader {
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .wrapContentHeight()
+//                ) {
+//                    NewsSeparator(
+//                        date = if (publishedDate == LocalDate.now()) "Today" else dateFormatter.format(
+//                            publishedDate
+//                        ),
+//                        modifier = Modifier.align(Alignment.Center)
+//                    )
+//                }
+//            }
+//
+//            items(newsEntries){
+//                NewsCard(newsItem = it!!)
+//            }
+////            itemsIndexed(news) { _, item ->
+////                if (item != null) {
+////                    NewsCard(newsItem = item)
+////                }
+////            }
+//        }
 
     }
 
@@ -161,7 +202,7 @@ fun NewsCard(newsItem: News) {
         backgroundColor = MaterialTheme.colors.cardBackground,
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
-            .preferredHeight(160.dp)
+            .requiredHeight(160.dp)
             .fillMaxWidth()
     ) {
         Row {
@@ -275,8 +316,34 @@ interface NewsService {
     suspend fun listNews(
         @Query("q") q: String = "Man United",
         @Query("apiKey") apiKey: String = "bddfa3d483ae4a28ab9177a45fc8f026",
-        @Query("pagesize") pageSize: Int = 50,
+        @Query("pagesize") pageSize: Int = 10,
+        @Query("page") page: Int = 1,
     ): NewsResponse
+}
+
+class NewsDataSource(private val service: NewsService) : PagingSource<Int, News>() {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, News> {
+        return try {
+            val page = params.key ?: 1
+            val response = service.listNews(
+                page = page
+            )
+
+            LoadResult.Page(
+                data = response.articles,
+                prevKey = if (page == 1) null else page - 1,
+                nextKey = page + 1
+            )
+        } catch (exception: Exception) {
+            LoadResult.Error(
+                exception
+            )
+        }
+    }
+
+    override fun getRefreshKey(state: PagingState<Int, News>): Int? {
+        TODO("Not yet implemented")
+    }
 }
 
 

@@ -16,11 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,7 +52,7 @@ fun PassCode(
     borderStrokeWidth: Dp = 2.dp,
     circleSize: Dp = 40.dp,
     backgroundColor: Color = Color.Transparent,
-    backgroundImage: ImageBitmap? = imageResource(id = R.drawable.bg_passcode)
+    backgroundImage: Painter? = painterResource(id = R.drawable.bg_passcode)
 ) {
     var typedPasscode by remember { mutableStateOf("") }
     var passCodeState by remember { mutableStateOf(PassCodeState.Undefined) }
@@ -120,7 +120,7 @@ fun PassCode(
         backgroundImage?.let {
             Image(
                 contentDescription = null,
-                bitmap = backgroundImage,
+                painter = backgroundImage,
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier.fillMaxSize()
             )
@@ -136,7 +136,7 @@ fun PassCode(
                     .fillMaxWidth()
                     .align(Alignment.End),
                 text = headerText,
-                style = PasscodeTypography.h5
+                style = PasscodeTypography.h5.copy(color = Color.Black)
             )
 
 
@@ -203,8 +203,10 @@ fun PassCode(
 
 @Composable
 fun FeedbackText(message: String, color: Color) {
-    val alpha = animatedFloat(initVal = 0f)
-    alpha.animateTo(1f, anim = tween(durationMillis = 500, easing = LinearEasing))
+    val alpha = animateFloatAsState(
+        targetValue = 1f,
+        animationSpec = tween(durationMillis = 500, easing = LinearEasing)
+    )
 
     Text(
         text = message,
@@ -238,7 +240,7 @@ fun PassCodeCircle(
                 shape = CircleShape
             )
             .border(border = BorderStroke(borderStrokeWidth, borderColor), shape = CircleShape)
-            .preferredSize(circleSize)
+            .requiredSize(circleSize)
     )
 }
 
@@ -300,7 +302,7 @@ fun NumericalKey(position: Int, modifier: Modifier, onClick: (number: Int) -> Un
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .preferredHeight(70.dp)
+            .requiredHeight(70.dp)
             .clickable(
                 onClick = {
                     onClick(position)
@@ -320,7 +322,11 @@ fun NumericalKey(position: Int, modifier: Modifier, onClick: (number: Int) -> Un
         if (position != SPECIAL_KEY_EMPTY && position != SPECIAL_KEY_BACKSPACE)
             Text(
                 text = if (position == SPECIAL_KEY_ZERO) "0" else position.toString(),
-                style = TextStyle(fontWeight = FontWeight.ExtraBold, fontSize = 25.sp)
+                style = TextStyle(
+                    color = Color.Black,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 25.sp
+                )
             )
 
     }
