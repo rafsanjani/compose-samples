@@ -11,7 +11,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -53,13 +58,20 @@ fun Clock() {
     Log.d("Debug", "Clock: $animatedValue")
 
     val time = LocalTime.now()
-    Box(modifier = Modifier.wrapContentSize(), contentAlignment = Alignment.Center) {
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
         val drawColor = MaterialTheme.colors.onSurface
 
         Canvas(
             modifier = Modifier
-                .requiredHeight(350.dp)
-                .fillMaxWidth(), onDraw = {
+                .padding(top = 50.dp)
+                .height(350.dp)
+                .fillMaxWidth(),
+            onDraw = {
                 val radius = min(size.width / 2, size.height / 2) - 50
 
                 //the shape's center
@@ -150,15 +162,13 @@ fun Clock() {
 
         Text(
             modifier = Modifier
-                .padding(top = 80.dp)
                 .border(
                     border = BorderStroke(width = 1.dp, color = drawColor),
                     shape = RoundedCornerShape(5.dp)
                 )
-                .padding(horizontal = 5.dp)
-                .align(Alignment.Center),
+                .padding(8.dp),
             text = timeFormatter.format(time)
-                .toUpperCase(Locale.getDefault()),
+                .uppercase(Locale.getDefault()),
         )
     }
 
@@ -185,6 +195,7 @@ fun DrawScope.drawTick(isHour: Boolean, radius: Float, center: Offset, color: Co
                 start = pos,
                 end = pos - Offset(x = 0f, y = tickLength),
                 strokeWidth = if (isHour) 5f else 3f,
+                cap = StrokeCap.Round,
                 color = color
             )
         }
