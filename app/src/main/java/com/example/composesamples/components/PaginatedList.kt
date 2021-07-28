@@ -1,10 +1,19 @@
 package com.example.composesamples.components
 
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,27 +22,35 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.paging.*
+import androidx.paging.LoadState
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
 import com.example.composesamples.R
 import com.example.composesamples.styles.NewsTypography
 import com.example.composesamples.styles.cardBackground
-import com.squareup.moshi.*
-import dev.chrisbanes.accompanist.coil.CoilImage
-import dev.chrisbanes.accompanist.insets.ProvideWindowInsets
-import dev.chrisbanes.accompanist.insets.systemBarsPadding
+import com.google.accompanist.coil.rememberCoilPainter
+import com.google.accompanist.imageloading.ImageLoadState
+import com.google.accompanist.insets.ProvideWindowInsets
+import com.google.accompanist.insets.systemBarsPadding
+import com.squareup.moshi.FromJson
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.ToJson
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -41,44 +58,14 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import java.time.LocalDate
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 
 private const val TAG = "PaginatedNews"
 
 @ExperimentalFoundationApi
 @Composable
-fun StickyHeaders() {
-//    val moshi = Moshi.Builder()
-//        .add(DateAdapter())
-//        .build()
-//
-//    val newsService = Retrofit.Builder()
-//        .baseUrl("https://newsapi.org/")
-//        .addConverterFactory(MoshiConverterFactory.create(moshi))
-//        .build()
-//        .create(NewsService::class.java)
-//
-//    val news = mutableStateListOf<News>()
+fun PaginatedList() {
     val items = getPhotoPagination().collectAsLazyPagingItems()
-
-//    LaunchedEffect(true) {
-//        try {
-//            val list = newsService.listNews()
-//
-//            //Sometimes duplicate news entries are loaded
-//            news.addAll(
-//                list
-//                    .articles
-//                    .toSet()
-//            )
-//            Log.d(TAG, "PaginatedNews: Loaded ${list.articles.size} items")
-//        } catch (t: Throwable) {
-//            Log.e(TAG, "PaginatedNews: ", t)
-//        }
-//    }
-
-    val loadingTransition = rememberInfiniteTransition()
 
     ProvideWindowInsets {
         Box(
@@ -87,29 +74,7 @@ fun StickyHeaders() {
                 .systemBarsPadding()
                 .fillMaxSize(),
         ) {
-//            if (news.isNotEmpty()) {
             NewsList(news = items)
-//            } else {
-//                val loadingAlpha by loadingTransition.animateFloat(
-//                    initialValue = 0.2f, targetValue = 1f, animationSpec =
-//                    infiniteRepeatable(
-//                        repeatMode = RepeatMode.Reverse,
-//                        animation = tween(1000)
-//                    )
-//                )
-//
-//                Text(
-//                    text = "Loading...",
-//                    style = TextStyle(
-//                        fontSize = 32.sp,
-//                        fontStyle = FontStyle.Italic,
-//                        fontWeight = FontWeight.ExtraBold
-//                    ),
-//                    modifier = Modifier
-//                        .align(Alignment.Center)
-//                        .alpha(loadingAlpha)
-//                )
-//            }
         }
     }
 }
@@ -133,17 +98,6 @@ fun getPhotoPagination(): Flow<PagingData<News>> {
 @ExperimentalFoundationApi
 @Composable
 fun NewsList(news: LazyPagingItems<News>) {
-    val dateFormatter = remember { DateTimeFormatter.ofPattern("MMMM dd, yyyy") }
-
-//    val aggregatedNews = news
-//        .snapshot()
-//        .sortedByDescending {
-//            it?.publishedAt
-//        }
-//        .groupBy {
-//            it?.publishedAt
-//        }
-
     LazyColumn(
         contentPadding = PaddingValues(5.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp)
@@ -165,33 +119,6 @@ fun NewsList(news: LazyPagingItems<News>) {
                 }
             }
         }
-//        aggregatedNews.forEach { (publishedDate, newsEntries) ->
-//
-//            stickyHeader {
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .wrapContentHeight()
-//                ) {
-//                    NewsSeparator(
-//                        date = if (publishedDate == LocalDate.now()) "Today" else dateFormatter.format(
-//                            publishedDate
-//                        ),
-//                        modifier = Modifier.align(Alignment.Center)
-//                    )
-//                }
-//            }
-//
-//            items(newsEntries){
-//                NewsCard(newsItem = it!!)
-//            }
-////            itemsIndexed(news) { _, item ->
-////                if (item != null) {
-////                    NewsCard(newsItem = item)
-////                }
-////            }
-//        }
-
     }
 
 }
@@ -210,27 +137,29 @@ fun NewsCard(newsItem: News) {
 
             val data = newsItem.urlToImage ?: placeHolder
 
-            CoilImage(
-                loading = {
-                    Box {
-                        Image(
-                            painter = painterResource(id = R.drawable.bg_passcode),
-                            contentDescription = "",
-                            contentScale = ContentScale.FillBounds
-                        )
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                        )
-                    }
-                },
-                contentScale = ContentScale.Crop,
+            val imagePainter = rememberCoilPainter(request = data)
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth(0.4f)
-                    .fillMaxHeight(),
-                contentDescription = null,
-                data = data,
-            )
+                    .fillMaxHeight()
+            ) {
+                Image(
+                    painter = imagePainter,
+                    contentDescription = newsItem.title,
+                    contentScale = ContentScale.Crop,
+                )
+
+                when (imagePainter.loadState) {
+                    is ImageLoadState.Loading -> CircularProgressIndicator(
+                        modifier = Modifier.align(
+                            Alignment.Center
+                        )
+                    )
+                    else -> {
+                    }
+                }
+            }
 
             Column {
                 Text(
@@ -314,7 +243,7 @@ class DateAdapter {
 interface NewsService {
     @GET("v2/everything")
     suspend fun listNews(
-        @Query("q") q: String = "Man United",
+        @Query("q") q: String = "Ghana",
         @Query("apiKey") apiKey: String = "bddfa3d483ae4a28ab9177a45fc8f026",
         @Query("pagesize") pageSize: Int = 10,
         @Query("page") page: Int = 1,

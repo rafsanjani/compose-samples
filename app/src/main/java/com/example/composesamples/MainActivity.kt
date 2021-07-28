@@ -19,19 +19,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.example.composesamples.components.Clock
 import com.example.composesamples.components.PassCode
-import com.example.composesamples.components.StickyHeaders
+import com.example.composesamples.components.PaginatedList
 import com.example.composesamples.styles.ComposeSamplesTheme
-import dev.chrisbanes.accompanist.insets.ProvideWindowInsets
-import dev.chrisbanes.accompanist.insets.systemBarsPadding
+import com.google.accompanist.insets.ProvideWindowInsets
+import com.google.accompanist.insets.systemBarsPadding
 import java.util.*
 
 @ExperimentalAnimationApi
 class MainActivity : AppCompatActivity() {
-    @ExperimentalFoundationApi
+    @OptIn(ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -58,7 +57,7 @@ fun App() {
                     )
                 }
                 composable("passcode") { PassCode() }
-                composable("news") { StickyHeaders() }
+                composable("news") { PaginatedList() }
             }
         }
     }
@@ -71,7 +70,7 @@ fun MainMenu(
     val samples = listOf(
         "Clock",
         "Passcode",
-        "News"
+        "News",
     )
 
     ProvideWindowInsets {
