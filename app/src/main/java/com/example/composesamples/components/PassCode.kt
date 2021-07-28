@@ -60,7 +60,7 @@ fun PassCode(
 
 
     val transition: Transition<PassCodeState> =
-        updateTransition(targetState = passCodeState)
+        updateTransition(targetState = passCodeState, label = "")
 
     if (transition.currentState == transition.targetState && transition.targetState == PassCodeState.Wrong) {
         passCodeState = PassCodeState.Undefined
@@ -73,7 +73,7 @@ fun PassCode(
     val circleColor by transition.animateColor(
         transitionSpec = {
             tween(1000, easing = LinearEasing)
-        }
+        }, label = ""
     ) { state ->
         when (state) {
             PassCodeState.Undefined -> {
@@ -100,7 +100,7 @@ fun PassCode(
                         animation = tween(durationMillis = 100, easing = LinearEasing)
                     )
             }
-        }
+        }, label = ""
     ) { state ->
         when (state) {
             PassCodeState.Undefined -> 0f
