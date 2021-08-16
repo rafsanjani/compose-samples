@@ -137,7 +137,7 @@ fun Clock() {
                     radius = radius,
                     value = time.hour.toFloat(),
                     from = origin,
-                    distFromRadius = 100,
+                    distFromRadius = 190,
                     color = drawColor,
                     strokeWidth = 5f
                 )
@@ -174,7 +174,7 @@ fun Clock() {
 
 }
 
-fun DrawScope.drawTick(isHour: Boolean, radius: Float, center: Offset, color: Color) {
+private fun DrawScope.drawTick(isHour: Boolean, radius: Float, center: Offset, color: Color) {
     val ticks = if (isHour) 1..12 else 1..60
 
     for (i in ticks) {
@@ -202,7 +202,7 @@ fun DrawScope.drawTick(isHour: Boolean, radius: Float, center: Offset, color: Co
     }
 }
 
-fun DrawScope.drawHand(
+private fun DrawScope.drawHand(
     isHour: Boolean = false,
     radius: Float,
     value: Float,

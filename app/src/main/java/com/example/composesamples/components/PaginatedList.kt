@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -79,7 +80,7 @@ fun PaginatedList() {
     }
 }
 
-fun getPhotoPagination(): Flow<PagingData<News>> {
+private fun getPhotoPagination(): Flow<PagingData<News>> {
     val moshi = Moshi.Builder()
         .add(DateAdapter())
         .build()
@@ -97,10 +98,11 @@ fun getPhotoPagination(): Flow<PagingData<News>> {
 
 @ExperimentalFoundationApi
 @Composable
-fun NewsList(news: LazyPagingItems<News>) {
+private fun NewsList(news: LazyPagingItems<News>) {
     LazyColumn(
         contentPadding = PaddingValues(5.dp),
-        verticalArrangement = Arrangement.spacedBy(5.dp)
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        state = rememberLazyListState()
     ) {
 
         itemsIndexed(news) { _, item ->
@@ -124,7 +126,7 @@ fun NewsList(news: LazyPagingItems<News>) {
 }
 
 @Composable
-fun NewsCard(newsItem: News) {
+private fun NewsCard(newsItem: News) {
     Card(
         backgroundColor = MaterialTheme.colors.cardBackground,
         shape = RoundedCornerShape(8.dp),
@@ -232,7 +234,7 @@ data class News(
 )
 
 @Suppress("unused")
-class DateAdapter {
+private class DateAdapter {
     @ToJson
     fun toJson(date: LocalDate): String = date.toString()
 
@@ -240,7 +242,7 @@ class DateAdapter {
     fun fromJson(dateJson: String): LocalDate = ZonedDateTime.parse(dateJson).toLocalDate()
 }
 
-interface NewsService {
+private interface NewsService {
     @GET("v2/everything")
     suspend fun listNews(
         @Query("q") q: String = "Ghana",
@@ -250,7 +252,7 @@ interface NewsService {
     ): NewsResponse
 }
 
-class NewsDataSource(private val service: NewsService) : PagingSource<Int, News>() {
+private class NewsDataSource(private val service: NewsService) : PagingSource<Int, News>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, News> {
         return try {
             val page = params.key ?: 1

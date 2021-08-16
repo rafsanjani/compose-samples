@@ -1,6 +1,5 @@
 package com.example.composesamples.components
 
-import Drawing
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
@@ -15,7 +14,6 @@ fun NewsSeparatorPreview() {
     NewsSeparator(
         date = "January 20, 2021",
     )
-
 }
 
 @Composable
@@ -43,5 +41,5 @@ fun NewsListPreview() {
 @Preview
 @Composable
 fun AppPreview(){
-    Drawing()
+    LaunchedEffectSample()
 }
