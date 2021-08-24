@@ -96,7 +96,6 @@ private fun getPhotoPagination(): Flow<PagingData<News>> {
     }.flow
 }
 
-@ExperimentalFoundationApi
 @Composable
 private fun NewsList(news: LazyPagingItems<News>) {
     LazyColumn(

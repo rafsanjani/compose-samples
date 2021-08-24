@@ -8,7 +8,7 @@ plugins {
 android {
     signingConfigs {
         debug {
-            storeFile file('/home/rafsanjani/Desktop/MASTER_KEY.jks')
+            storeFile file('/Users/raz03/Desktop/MASTER_KEY.jks')
             storePassword 'NowyouseeMe1990'
             keyAlias 'rafsanjani_android'
             keyPassword 'NowyouseeMe1990'

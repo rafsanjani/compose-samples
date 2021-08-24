@@ -92,4 +92,5 @@ sealed class Destination(val route: String, val content: @Composable () -> Unit 
     object Draggable : Destination("Draggable", content = { DraggableSample() })
     object HoistedStateObject :
         Destination("HoistedStateObject", content = { HoistedStateObject() })
+    // TODO: Read images from gallery and display them with animations
 }

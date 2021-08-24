@@ -75,7 +75,7 @@ interface EmailState {
 }
 
 
-class EmailStateImpl(initialValue: String) : EmailState {
+private class EmailStateImpl(initialValue: String) : EmailState {
     private var _email by mutableStateOf(initialValue, structuralEqualityPolicy())
     private var _isValid by mutableStateOf(initialValue.contains("@"), structuralEqualityPolicy())
 
