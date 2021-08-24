@@ -6,14 +6,6 @@ plugins {
 
 
 android {
-    signingConfigs {
-        debug {
-            storeFile file('/Users/raz03/Desktop/MASTER_KEY.jks')
-            storePassword 'NowyouseeMe1990'
-            keyAlias 'rafsanjani_android'
-            keyPassword 'NowyouseeMe1990'
-        }
-    }
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
@@ -31,7 +23,6 @@ android {
         release {
             minifyEnabled true
             debuggable false
-            signingConfig signingConfigs.debug
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -60,7 +51,7 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.6.0'
     implementation 'androidx.appcompat:appcompat:1.3.1'
     implementation 'com.google.android.material:material:1.4.0'
-    implementation "androidx.navigation:navigation-compose:2.4.0-alpha06"
+    implementation "androidx.navigation:navigation-compose:2.4.0-alpha07"
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
