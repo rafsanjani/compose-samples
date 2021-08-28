@@ -91,7 +91,7 @@ sealed class Destination(val route: String, val content: @Composable () -> Unit 
     object Menu : Destination("Menu")
     object PaginatedList : Destination("Paginated List", content = { PaginatedList() })
     object LaunchedEffect : Destination("Launched Effect", content = { LaunchedEffectSample() })
-    object Draggable : Destination("Draggable", content = { })
+    object Draggable : Destination("Draggable", content = { Draggable() })
     object HoistedStateObject :
         Destination("HoistedStateObject", content = { HoistedStateObject() })
 
