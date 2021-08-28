@@ -1,5 +1,6 @@
 package com.example.composesamples.components
 
+import RememberUpdatedStateSample
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
@@ -11,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import com.example.composesamples.MainMenu
+import com.example.composesamples.components.sideeffects.LaunchedEffectSample
 import com.example.composesamples.samples
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -89,8 +91,12 @@ sealed class Destination(val route: String, val content: @Composable () -> Unit 
     object Menu : Destination("Menu")
     object PaginatedList : Destination("Paginated List", content = { PaginatedList() })
     object LaunchedEffect : Destination("Launched Effect", content = { LaunchedEffectSample() })
-    object Draggable : Destination("Draggable", content = { DraggableSample() })
+    object Draggable : Destination("Draggable", content = { })
     object HoistedStateObject :
         Destination("HoistedStateObject", content = { HoistedStateObject() })
+
+    object RememberUpdatedState :
+        Destination("Remember Updated State", content = { RememberUpdatedStateSample() })
+
     // TODO: Read images from gallery and display them with animations
 }

@@ -1,4 +1,4 @@
-package com.example.composesamples.components
+package com.example.composesamples.components.sideeffects
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Arrangement
