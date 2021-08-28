@@ -1,100 +1,88 @@
 package com.example.composesamples.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.consumeAllChanges
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-import kotlin.math.roundToInt
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun LaunchedEffectSample() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            var textValue by remember { mutableStateOf(0) }
-            val launchedEffectToggle by rememberUpdatedState(mutableStateOf(true))
+    val snackbarHostState = remember {
+        SnackbarHostState()
+    }
 
-            LaunchedEffect(launchedEffectToggle.value) {
-                textValue = 0
-                while (textValue < 10) {
-                    delay(1000)
-                    textValue++
+    var counter by remember {
+        mutableStateOf(0)
+    }
+
+    var effectToggle by remember { mutableStateOf(false) }
+
+    LaunchedEffect(effectToggle) {
+        counter = 0
+        while (counter < 10) {
+            counter++
+            delay(1000)
+        }
+
+        snackbarHostState.showSnackbar(
+            "Launched effect completed!"
+        )
+    }
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        scaffoldState = rememberScaffoldState(
+            snackbarHostState = snackbarHostState
+        )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+
+            Text(text = counter.toString())
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .height(56.dp),
+                onClick = {
+                    effectToggle = !effectToggle
                 }
-                textValue = 0
+            ) {
+                Text(
+                    text = "Restart Launched Effect",
+                )
             }
 
             Text(
-                text = textValue.toString(),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
+                text = "This will count to 10 only when effect toggle is changed by pressing the button",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(10.dp)
             )
-
-            Button(onClick = {
-                launchedEffectToggle.value = !launchedEffectToggle.value
-            }) {
-                Text(text = "Start Effect")
-            }
         }
     }
 }
-
-@Composable
-fun DraggableSample() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        var position by remember { mutableStateOf(IntOffset.Zero) }
-
-        fun onPositionChange(change: IntOffset) {
-            position += change
-        }
-
-        DraggableCircle(position = position, onPositionChanged = ::onPositionChange)
-    }
-}
-
-@Composable
-fun DraggableCircle(
-    modifier: Modifier = Modifier,
-    position: IntOffset,
-    onPositionChanged: (change: IntOffset) -> Unit
-) {
-    Box(
-        modifier = modifier
-            .offset { position }
-            .size(100.dp)
-            .background(color = androidx.compose.ui.graphics.Color.Green, CircleShape)
-            .pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
-                    onPositionChanged(dragAmount.toIntOffset)
-                    change.consumeAllChanges()
-                }
-            }
-    )
-}
-
-val Offset.toIntOffset: IntOffset get() = IntOffset(x = x.roundToInt(), y = y.roundToInt())
