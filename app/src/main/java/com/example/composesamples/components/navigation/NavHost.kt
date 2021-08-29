@@ -1,18 +1,16 @@
 package com.example.composesamples.components
 
-import RememberUpdatedStateSample
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import com.example.composesamples.MainMenu
-import com.example.composesamples.components.sideeffects.LaunchedEffectSample
+import com.example.composesamples.components.navigation.Destination
 import com.example.composesamples.samples
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -23,13 +21,13 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
     ExperimentalFoundationApi::class
 )
 @Composable
-fun NavHost() {
+fun NavHost(modifier: Modifier = Modifier) {
     val navController = rememberAnimatedNavController()
 
     AnimatedNavHost(
         navController,
         startDestination = Destination.Menu.route,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier
     ) {
         samples.forEach { destination ->
             composable(
@@ -74,6 +72,7 @@ fun NavGraphBuilder.composable(
         }
     ) {
         if (destination.route == Destination.Menu.route) {
+            //navigation only occurs on the MainMenu screen
             MainMenu { destination ->
                 navController.navigate(destination.route)
             }
@@ -83,20 +82,3 @@ fun NavGraphBuilder.composable(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-sealed class Destination(val route: String, val content: @Composable () -> Unit = {}) {
-    object Clock : Destination("Clock", content = { Clock() })
-    object Passcode : Destination("Passcode", content = { PassCode() })
-    object Drawing : Destination("Drawing", content = {})
-    object Menu : Destination("Menu")
-    object PaginatedList : Destination("Paginated List", content = { PaginatedList() })
-    object LaunchedEffect : Destination("Launched Effect", content = { LaunchedEffectSample() })
-    object Draggable : Destination("Draggable", content = { Draggable() })
-    object HoistedStateObject :
-        Destination("HoistedStateObject", content = { HoistedStateObject() })
-
-    object RememberUpdatedState :
-        Destination("Remember Updated State", content = { RememberUpdatedStateSample() })
-
-    // TODO: Read images from gallery and display them with animations
-}

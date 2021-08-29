@@ -45,8 +45,6 @@ import com.example.composesamples.styles.NewsTypography
 import com.example.composesamples.styles.cardBackground
 import com.google.accompanist.coil.rememberCoilPainter
 import com.google.accompanist.imageloading.ImageLoadState
-import com.google.accompanist.insets.ProvideWindowInsets
-import com.google.accompanist.insets.systemBarsPadding
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -66,21 +64,18 @@ private const val TAG = "PaginatedNews"
 @ExperimentalFoundationApi
 @Composable
 fun PaginatedList() {
-    val items = getPhotoPagination().collectAsLazyPagingItems()
-
-    ProvideWindowInsets {
-        Box(
-            modifier = Modifier
-                .padding(top = 5.dp)
-                .systemBarsPadding()
-                .fillMaxSize(),
-        ) {
-            NewsList(news = items)
-        }
+    val items = getPaginatedNewsItems().collectAsLazyPagingItems()
+    Box(
+        modifier = Modifier
+            .padding(top = 5.dp)
+            .fillMaxSize(),
+    ) {
+        NewsList(news = items)
     }
+
 }
 
-private fun getPhotoPagination(): Flow<PagingData<News>> {
+private fun getPaginatedNewsItems(): Flow<PagingData<News>> {
     val moshi = Moshi.Builder()
         .add(DateAdapter())
         .build()
@@ -98,24 +93,32 @@ private fun getPhotoPagination(): Flow<PagingData<News>> {
 
 @Composable
 private fun NewsList(news: LazyPagingItems<News>) {
-    LazyColumn(
-        contentPadding = PaddingValues(5.dp),
-        verticalArrangement = Arrangement.spacedBy(5.dp),
-        state = rememberLazyListState()
-    ) {
-
-        itemsIndexed(news) { _, item ->
-            NewsCard(newsItem = item!!)
+    if (news.loadState.refresh is LoadState.Loading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = "Loading")
         }
+    } else {
 
-        news.apply {
-            when {
-                loadState.refresh is LoadState.Loading -> item {
-                    Text(text = "Loading")
-                }
-                loadState.append is LoadState.Loading -> {
-                    item {
-                        CircularProgressIndicator()
+        LazyColumn(
+            contentPadding = PaddingValues(5.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp),
+            state = rememberLazyListState()
+        ) {
+
+            itemsIndexed(news) { _, item ->
+                NewsCard(newsItem = item!!)
+            }
+
+            news.apply {
+                when (loadState.append) {
+                    is LoadState.Loading -> {
+                        item {
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                    }
+                    else -> {
                     }
                 }
             }

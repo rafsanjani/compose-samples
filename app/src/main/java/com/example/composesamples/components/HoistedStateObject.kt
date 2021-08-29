@@ -16,31 +16,30 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.systemBarsPadding
 
 @Composable
 fun HoistedStateObject() {
-    ProvideWindowInsets {
+    Box(
+        modifier = Modifier
+            .padding(top = 5.dp)
+            .systemBarsPadding()
+            .fillMaxSize(),
+    ) {
         Box(
             modifier = Modifier
-                .padding(top = 5.dp)
-                .systemBarsPadding()
-                .fillMaxSize(),
+                .fillMaxSize()
         ) {
-            Box(
+            Email(
                 modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Email(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    state = rememberEmailState(initialValue = "coded_raf@yahoo.com")
-                )
-            }
+                    .fillMaxWidth()
+                    .align(Alignment.Center)
+                    .padding(16.dp),
+                state = rememberEmailState(initialValue = "coded_raf@yahoo.com")
+            )
         }
     }
 }

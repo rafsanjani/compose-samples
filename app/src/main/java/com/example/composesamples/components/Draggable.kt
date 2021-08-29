@@ -18,22 +18,20 @@ import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.systemBarsPadding
 
 @Composable
 fun Draggable() {
     var ballPosition by remember { mutableStateOf(IntOffset.Zero) }
 
-    ProvideWindowInsets {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .systemBarsPadding()
-        ) {
-            Ball(position = ballPosition, onPositionChanged = { ballPosition += it })
-        }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .systemBarsPadding()
+    ) {
+        Ball(position = ballPosition, onPositionChanged = { ballPosition += it })
     }
+
 }
 
 

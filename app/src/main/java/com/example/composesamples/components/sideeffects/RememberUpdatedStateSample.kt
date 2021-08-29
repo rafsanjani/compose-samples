@@ -17,11 +17,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.systemBarsPadding
 import kotlinx.coroutines.delay
 
 @Composable
+//Special credits to everyone in this slack thread:
 fun RememberUpdatedStateSample() {
     var counter by remember {
         mutableStateOf(0)
@@ -42,7 +42,14 @@ fun RememberUpdatedStateSample() {
         }
     }
 
-    ProvideWindowInsets {
+
+    val snackbarHostState = SnackbarHostState()
+
+    Scaffold(
+        scaffoldState = rememberScaffoldState(
+            snackbarHostState = snackbarHostState
+        )
+    ) {
         Column(
             modifier = Modifier
                 .systemBarsPadding()
@@ -57,17 +64,20 @@ fun RememberUpdatedStateSample() {
                 textAlign = TextAlign.Center
             )
 
-            ChildScreen(modifier = Modifier.weight(1f), callback = childLambda)
+            SomeChildComposable(
+                callback = childLambda, snackbarHostState
+            )
         }
     }
 }
 
 @Composable
-fun ChildScreen(modifier: Modifier = Modifier, callback: () -> String) {
+fun SomeChildComposable(
+    callback: () -> String,
+    snackbarHostState: SnackbarHostState
+) {
     //rememberUpdatedState ensures that the callback will always have the latest version of its displayText value
     val currentTextValue by rememberUpdatedState(newValue = callback)
-
-    val snackbarHostState = SnackbarHostState()
 
     LaunchedEffect(true) {
         delay(5000)
@@ -78,12 +88,4 @@ fun ChildScreen(modifier: Modifier = Modifier, callback: () -> String) {
         )
     }
 
-    Scaffold(
-        modifier = modifier,
-        scaffoldState = rememberScaffoldState(
-            snackbarHostState = snackbarHostState
-        )
-    ) {
-
-    }
 }

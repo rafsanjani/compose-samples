@@ -47,8 +47,9 @@ fun Clock() {
     val transition = rememberInfiniteTransition()
 
     val animatedValue by transition.animateFloat(
-        initialValue = 0f, targetValue = 1f, animationSpec =
-        infiniteRepeatable(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
             animation = tween(1000)
         )
     )
