@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,7 +26,6 @@ import com.example.composesamples.styles.ComposeSamplesTheme
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.systemBarsPadding
 
-@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalAnimationApi
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +46,7 @@ fun App() {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            ProvideWindowInsets() {
+            ProvideWindowInsets {
                 NavHost(
                     modifier = Modifier
                         .systemBarsPadding()
@@ -71,9 +69,9 @@ val samples = listOf(
     Destination.RememberUpdatedState,
     Destination.FreeFlowingRectangle,
     Destination.FreeFlowingCircle,
+    Destination.Gallery
 )
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainMenu(
     onNavigate: (destination: Destination) -> Unit = {}

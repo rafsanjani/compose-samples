@@ -79,6 +79,4 @@ sealed class Destination(
             content = { GallerySample() },
             description = "Display images from the device gallery"
         )
-
-    // TODO: Read images from gallery and display them with animations
 }

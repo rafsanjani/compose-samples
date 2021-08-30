@@ -40,11 +40,12 @@ import androidx.paging.PagingState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
+import coil.annotation.ExperimentalCoilApi
+import coil.compose.ImagePainter
+import coil.compose.rememberImagePainter
 import com.example.composesamples.R
 import com.example.composesamples.styles.NewsTypography
 import com.example.composesamples.styles.cardBackground
-import com.google.accompanist.coil.rememberCoilPainter
-import com.google.accompanist.imageloading.ImageLoadState
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -127,6 +128,7 @@ private fun NewsList(news: LazyPagingItems<News>) {
 
 }
 
+@OptIn(ExperimentalCoilApi::class)
 @Composable
 private fun NewsCard(newsItem: News) {
     Card(
@@ -141,7 +143,8 @@ private fun NewsCard(newsItem: News) {
 
             val data = newsItem.urlToImage ?: placeHolder
 
-            val imagePainter = rememberCoilPainter(request = data)
+            val imagePainter = rememberImagePainter(data = data)
+            val imageLoadState = imagePainter.state
 
             Box(
                 modifier = Modifier
@@ -154,8 +157,8 @@ private fun NewsCard(newsItem: News) {
                     contentScale = ContentScale.Crop,
                 )
 
-                when (imagePainter.loadState) {
-                    is ImageLoadState.Loading -> CircularProgressIndicator(
+                when (imageLoadState) {
+                    is ImagePainter.State.Loading -> CircularProgressIndicator(
                         modifier = Modifier.align(
                             Alignment.Center
                         )
