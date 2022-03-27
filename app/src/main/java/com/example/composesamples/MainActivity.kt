@@ -69,7 +69,8 @@ val samples = listOf(
     Destination.RememberUpdatedState,
     Destination.FreeFlowingRectangle,
     Destination.FreeFlowingCircle,
-    Destination.Gallery
+    Destination.Gallery,
+    Destination.Pattern,
 )
 
 @Composable

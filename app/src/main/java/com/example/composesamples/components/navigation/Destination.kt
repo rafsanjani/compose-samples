@@ -8,6 +8,7 @@ import com.example.composesamples.components.Draggable
 import com.example.composesamples.components.HoistedStateObject
 import com.example.composesamples.components.PaginatedList
 import com.example.composesamples.components.PassCode
+import com.example.composesamples.components.Pattern
 import com.example.composesamples.components.gallery.GallerySample
 import com.example.composesamples.components.geometry.FreeFlowCircle
 import com.example.composesamples.components.geometry.FreeFlowRectangle
@@ -78,5 +79,12 @@ sealed class Destination(
             route = "Gallery",
             content = { GallerySample() },
             description = "Display images from the device gallery"
+        )
+
+    object Pattern :
+        Destination(
+            route = "Screen Lock Pattern",
+            content = { Pattern() },
+            description = "Screen lock pattern"
         )
 }
